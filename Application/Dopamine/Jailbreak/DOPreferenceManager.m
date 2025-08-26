@@ -65,4 +65,26 @@
     [self savePreferences];
 }
 
+- (NSString *)stringPreferenceValueForKey:(NSString *)key fallback:(NSString *)fallback
+{
+    NSString *value = [self preferenceValueForKey:key];
+    if (value && [value isKindOfClass:[NSString class]] && value.length > 0) {
+        return value;
+    }
+    return fallback;
+}
+
+- (NSString *)getEffectiveIOSVersionString
+{
+    BOOL forceVersionEnabled = [self boolPreferenceValueForKey:@"forceVersionEnabled" fallback:NO];
+    if (forceVersionEnabled) {
+        NSString *customVersion = [self stringPreferenceValueForKey:@"customIOSVersion" fallback:@""];
+        if (customVersion.length > 0) {
+            return [NSString stringWithFormat:@"Version %@ (Forced)", customVersion];
+        }
+    }
+    
+    return NSProcessInfo.processInfo.operatingSystemVersionString;
+}
+
 @end

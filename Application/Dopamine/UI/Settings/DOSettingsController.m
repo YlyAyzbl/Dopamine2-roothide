@@ -18,6 +18,7 @@
 #import "DOThemeManager.h"
 #import "DOSceneDelegate.h"
 #import "DOPSJetsamListItemsController.h"
+#import "DOPreferenceManager.h"
 
 
 @interface DOSettingsController ()
@@ -251,6 +252,20 @@
             [dyldPatchSpecifier setProperty:@"dyldPatchEnabled" forKey:@"key"];
             [dyldPatchSpecifier setProperty:@NO forKey:@"default"];
             [specifiers addObject:dyldPatchSpecifier];
+            
+            // Force Version Compatibility
+            PSSpecifier *forceVersionSwitchSpecifier = [PSSpecifier preferenceSpecifierNamed:@"强制版本兼容 (Force Version)" target:self set:@selector(setForceVersionEnabled:specifier:) get:@selector(readForceVersionEnabled:) detail:nil cell:PSSwitchCell edit:nil];
+            [forceVersionSwitchSpecifier setProperty:@YES forKey:@"enabled"];
+            [forceVersionSwitchSpecifier setProperty:@"forceVersionEnabled" forKey:@"key"];
+            [forceVersionSwitchSpecifier setProperty:@NO forKey:@"default"];
+            [specifiers addObject:forceVersionSwitchSpecifier];
+            
+            PSSpecifier *customVersionSpecifier = [PSSpecifier preferenceSpecifierNamed:@"自定义iOS版本 (Custom Version)" target:self set:@selector(setCustomVersion:specifier:) get:@selector(readCustomVersion:) detail:nil cell:PSEditTextCell edit:nil];
+            [customVersionSpecifier setProperty:@YES forKey:@"enabled"];
+            [customVersionSpecifier setProperty:@"customIOSVersion" forKey:@"key"];
+            [customVersionSpecifier setProperty:@"16.6" forKey:@"default"];
+            [customVersionSpecifier setProperty:@"输入iOS版本 (如: 16.6)" forKey:@"placeholder"];
+            [specifiers addObject:customVersionSpecifier];
             /**************************** roothide specfic *********************************/
             
             
@@ -641,6 +656,44 @@
         [self presentViewController:alert animated:YES completion:nil];
     } else {
         confirmAction();
+    }
+}
+
+- (id)readForceVersionEnabled:(PSSpecifier *)specifier
+{
+    return [[DOPreferenceManager sharedManager] boolPreferenceValueForKey:@"forceVersionEnabled" fallback:NO] ? @YES : @NO;
+}
+
+- (void)setForceVersionEnabled:(id)value specifier:(PSSpecifier *)specifier
+{
+    [[DOPreferenceManager sharedManager] setPreferenceValue:value forKey:@"forceVersionEnabled"];
+}
+
+- (id)readCustomVersion:(PSSpecifier *)specifier
+{
+    return [[DOPreferenceManager sharedManager] stringPreferenceValueForKey:@"customIOSVersion" fallback:@"16.6"];
+}
+
+- (void)setCustomVersion:(id)value specifier:(PSSpecifier *)specifier
+{
+    NSString *version = (NSString *)value;
+    if (version && version.length > 0) {
+        // Validate version format (e.g., 15.7.1, 16.6, 17.0)
+        NSString *versionPattern = @"^\\d{1,2}(\\.\\d{1,2})?(\\.\\d{1,2})?$";
+        NSPredicate *versionTest = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", versionPattern];
+        
+        if ([versionTest evaluateWithObject:version]) {
+            [[DOPreferenceManager sharedManager] setPreferenceValue:version forKey:@"customIOSVersion"];
+        } else {
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"版本格式错误" 
+                                                                           message:@"请输入有效的iOS版本号 (如: 16.6 或 15.7.1)" 
+                                                                    preferredStyle:UIAlertControllerStyleAlert];
+            [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil]];
+            [self presentViewController:alert animated:YES completion:nil];
+            
+            // Reset to previous value
+            [self reloadSpecifier:specifier];
+        }
     }
 }
 

@@ -23,6 +23,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setPreferenceValue:(NSObject *)obj forKey:(NSString *)key;
 - (void)removePreferenceValueForKey:(NSString *)key;
 
+- (NSString *)stringPreferenceValueForKey:(NSString *)key fallback:(NSString *)fallback;
+
+- (NSString *)getEffectiveIOSVersionString;
+
 @end
 
 NS_ASSUME_NONNULL_END

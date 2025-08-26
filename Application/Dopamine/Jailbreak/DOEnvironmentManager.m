@@ -7,6 +7,7 @@
 
 #import "DOEnvironmentManager.h"
 
+#import <UIKit/UIKit.h>
 #import <sys/sysctl.h>
 #import <sys/mount.h>
 #import <sys/stat.h>
@@ -22,6 +23,7 @@
 #import "DOUIManager.h"
 #import "DOExploitManager.h"
 #import "NSData+Hex.h"
+#import "DOPreferenceManager.h"
 
 int reboot3(uint64_t flags, ...);
 
@@ -204,6 +206,17 @@ int reboot3(uint64_t flags, ...);
 
 - (NSString *)versionSupportString
 {
+    // Check if force version is enabled
+    BOOL forceVersionEnabled = [[DOPreferenceManager sharedManager] boolPreferenceValueForKey:@"forceVersionEnabled" fallback:NO];
+    if (forceVersionEnabled) {
+        NSString *customVersion = [[DOPreferenceManager sharedManager] stringPreferenceValueForKey:@"customIOSVersion" fallback:@""];
+        if (customVersion.length > 0) {
+            NSString *actualVersion = [[UIDevice currentDevice] systemVersion];
+            return [NSString stringWithFormat:@"iOS %@ (Forced, Actual: %@)", customVersion, actualVersion];
+        }
+    }
+    
+    // Original version support string
     if ([self isArm64e]) {
         return @"iOS 15.0 - 16.5.1 (arm64e)";
     }

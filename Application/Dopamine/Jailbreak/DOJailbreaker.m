@@ -9,6 +9,7 @@
 #import "DOEnvironmentManager.h"
 #import "DOExploitManager.h"
 #import "DOUIManager.h"
+#import "DOPreferenceManager.h"
 #import <sys/stat.h>
 #import <compression.h>
 #import <xpf/xpf.h>
@@ -532,7 +533,8 @@ void *boomerang_server(struct boomerang_info *info)
     
     struct utsname systemInfo;
     uname(&systemInfo);
-    NSString *startLog = [NSString stringWithFormat:@"Starting Jailbreak (Model: %s, %@, Configuration: {removeJailbreak=%d, tweakInjection=%d, idownload=%d, appJIT=%d})", systemInfo.machine, NSProcessInfo.processInfo.operatingSystemVersionString, removeJailbreakEnabled, tweaksEnabled, idownloadEnabled, appJITEnabled];
+    NSString *effectiveVersion = [[DOPreferenceManager sharedManager] getEffectiveIOSVersionString];
+    NSString *startLog = [NSString stringWithFormat:@"Starting Jailbreak (Model: %s, %@, Configuration: {removeJailbreak=%d, tweakInjection=%d, idownload=%d, appJIT=%d})", systemInfo.machine, effectiveVersion, removeJailbreakEnabled, tweaksEnabled, idownloadEnabled, appJITEnabled];
     [[DOUIManager sharedInstance] sendLog:startLog debug:YES];
     
     *errOut = [self gatherSystemInformation];
