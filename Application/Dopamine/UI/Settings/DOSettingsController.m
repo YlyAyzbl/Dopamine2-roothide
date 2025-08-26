@@ -166,6 +166,24 @@
         [headerSpecifier setProperty:[NSString stringWithFormat:@"Settings"] forKey:@"title"];
         [specifiers addObject:headerSpecifier];
         
+        // TEST: Force Version Compatibility - This should ALWAYS show for ALL devices
+        PSSpecifier *testGroupSpecifier = [PSSpecifier emptyGroupSpecifier];
+        testGroupSpecifier.name = @"Version Override (Test)";
+        [specifiers addObject:testGroupSpecifier];
+        
+        PSSpecifier *forceVersionTestSpecifier = [PSSpecifier preferenceSpecifierNamed:@"Force Version Compatibility" target:self set:@selector(setForceVersionEnabled:specifier:) get:@selector(readForceVersionEnabled:) detail:nil cell:PSSwitchCell edit:nil];
+        [forceVersionTestSpecifier setProperty:@YES forKey:@"enabled"];
+        [forceVersionTestSpecifier setProperty:@"forceVersionEnabled" forKey:@"key"];
+        [forceVersionTestSpecifier setProperty:@NO forKey:@"default"];
+        [specifiers addObject:forceVersionTestSpecifier];
+        
+        PSSpecifier *customVersionTestSpecifier = [PSSpecifier preferenceSpecifierNamed:@"Custom iOS Version" target:self set:@selector(setCustomVersion:specifier:) get:@selector(readCustomVersion:) detail:nil cell:PSEditTextCell edit:nil];
+        [customVersionTestSpecifier setProperty:@YES forKey:@"enabled"];
+        [customVersionTestSpecifier setProperty:@"customIOSVersion" forKey:@"key"];
+        [customVersionTestSpecifier setProperty:@"16.6" forKey:@"default"];
+        [customVersionTestSpecifier setProperty:@"Enter iOS version (e.g., 16.6)" forKey:@"placeholder"];
+        [specifiers addObject:customVersionTestSpecifier];
+        
         if (envManager.isSupported) {
             if (!envManager.isJailbroken) {
                 PSSpecifier *exploitGroupSpecifier = [PSSpecifier emptyGroupSpecifier];
@@ -240,20 +258,6 @@
             [appJitSpecifier setProperty:@"appJITEnabled" forKey:@"key"];
             [appJitSpecifier setProperty:@YES forKey:@"default"];
             [specifiers addObject:appJitSpecifier];
-            
-            // Force Version Compatibility - 强制版本兼容功能
-            PSSpecifier *forceVersionSwitchSpecifier = [PSSpecifier preferenceSpecifierNamed:@"Force Version Compatibility" target:self set:@selector(setForceVersionEnabled:specifier:) get:@selector(readForceVersionEnabled:) detail:nil cell:PSSwitchCell edit:nil];
-            [forceVersionSwitchSpecifier setProperty:@YES forKey:@"enabled"];
-            [forceVersionSwitchSpecifier setProperty:@"forceVersionEnabled" forKey:@"key"];
-            [forceVersionSwitchSpecifier setProperty:@NO forKey:@"default"];
-            [specifiers addObject:forceVersionSwitchSpecifier];
-            
-            PSSpecifier *customVersionSpecifier = [PSSpecifier preferenceSpecifierNamed:@"Custom iOS Version" target:self set:@selector(setCustomVersion:specifier:) get:@selector(readCustomVersion:) detail:nil cell:PSEditTextCell edit:nil];
-            [customVersionSpecifier setProperty:@YES forKey:@"enabled"];
-            [customVersionSpecifier setProperty:@"customIOSVersion" forKey:@"key"];
-            [customVersionSpecifier setProperty:@"16.6" forKey:@"default"];
-            [customVersionSpecifier setProperty:@"Enter iOS version (e.g., 16.6)" forKey:@"placeholder"];
-            [specifiers addObject:customVersionSpecifier];
             
             /**************************** roothide specfic *********************************/
             NSString* namedesc = DOLocalizedString(@"Enable dyld patch");
@@ -357,6 +361,24 @@
                 }
             }
         }
+        
+        // Force Version Compatibility - Available for ALL devices (outside isSupported condition)
+        PSSpecifier *forceVersionGroupSpecifier = [PSSpecifier emptyGroupSpecifier];
+        forceVersionGroupSpecifier.name = @"Version Compatibility";
+        [specifiers addObject:forceVersionGroupSpecifier];
+        
+        PSSpecifier *forceVersionSwitchSpecifier = [PSSpecifier preferenceSpecifierNamed:@"Force Version Compatibility" target:self set:@selector(setForceVersionEnabled:specifier:) get:@selector(readForceVersionEnabled:) detail:nil cell:PSSwitchCell edit:nil];
+        [forceVersionSwitchSpecifier setProperty:@YES forKey:@"enabled"];
+        [forceVersionSwitchSpecifier setProperty:@"forceVersionEnabled" forKey:@"key"];
+        [forceVersionSwitchSpecifier setProperty:@NO forKey:@"default"];
+        [specifiers addObject:forceVersionSwitchSpecifier];
+        
+        PSSpecifier *customVersionSpecifier = [PSSpecifier preferenceSpecifierNamed:@"Custom iOS Version" target:self set:@selector(setCustomVersion:specifier:) get:@selector(readCustomVersion:) detail:nil cell:PSEditTextCell edit:nil];
+        [customVersionSpecifier setProperty:@YES forKey:@"enabled"];
+        [customVersionSpecifier setProperty:@"customIOSVersion" forKey:@"key"];
+        [customVersionSpecifier setProperty:@"16.6" forKey:@"default"];
+        [customVersionSpecifier setProperty:@"Enter iOS version (e.g., 16.6)" forKey:@"placeholder"];
+        [specifiers addObject:customVersionSpecifier];
         
         PSSpecifier *themingGroupSpecifier = [PSSpecifier emptyGroupSpecifier];
         themingGroupSpecifier.name = DOLocalizedString(@"Section_Customization");
