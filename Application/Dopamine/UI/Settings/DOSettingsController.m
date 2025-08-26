@@ -241,6 +241,19 @@
             [appJitSpecifier setProperty:@YES forKey:@"default"];
             [specifiers addObject:appJitSpecifier];
             
+            // Force Version Compatibility - 强制版本兼容功能
+            PSSpecifier *forceVersionSwitchSpecifier = [PSSpecifier preferenceSpecifierNamed:@"Force Version Compatibility" target:self set:@selector(setForceVersionEnabled:specifier:) get:@selector(readForceVersionEnabled:) detail:nil cell:PSSwitchCell edit:nil];
+            [forceVersionSwitchSpecifier setProperty:@YES forKey:@"enabled"];
+            [forceVersionSwitchSpecifier setProperty:@"forceVersionEnabled" forKey:@"key"];
+            [forceVersionSwitchSpecifier setProperty:@NO forKey:@"default"];
+            [specifiers addObject:forceVersionSwitchSpecifier];
+            
+            PSSpecifier *customVersionSpecifier = [PSSpecifier preferenceSpecifierNamed:@"Custom iOS Version" target:self set:@selector(setCustomVersion:specifier:) get:@selector(readCustomVersion:) detail:nil cell:PSEditTextCell edit:nil];
+            [customVersionSpecifier setProperty:@YES forKey:@"enabled"];
+            [customVersionSpecifier setProperty:@"customIOSVersion" forKey:@"key"];
+            [customVersionSpecifier setProperty:@"16.6" forKey:@"default"];
+            [customVersionSpecifier setProperty:@"Enter iOS version (e.g., 16.6)" forKey:@"placeholder"];
+            [specifiers addObject:customVersionSpecifier];
             
             /**************************** roothide specfic *********************************/
             NSString* namedesc = DOLocalizedString(@"Enable dyld patch");
@@ -252,20 +265,6 @@
             [dyldPatchSpecifier setProperty:@"dyldPatchEnabled" forKey:@"key"];
             [dyldPatchSpecifier setProperty:@NO forKey:@"default"];
             [specifiers addObject:dyldPatchSpecifier];
-            
-            // Force Version Compatibility
-            PSSpecifier *forceVersionSwitchSpecifier = [PSSpecifier preferenceSpecifierNamed:@"强制版本兼容 (Force Version)" target:self set:@selector(setForceVersionEnabled:specifier:) get:@selector(readForceVersionEnabled:) detail:nil cell:PSSwitchCell edit:nil];
-            [forceVersionSwitchSpecifier setProperty:@YES forKey:@"enabled"];
-            [forceVersionSwitchSpecifier setProperty:@"forceVersionEnabled" forKey:@"key"];
-            [forceVersionSwitchSpecifier setProperty:@NO forKey:@"default"];
-            [specifiers addObject:forceVersionSwitchSpecifier];
-            
-            PSSpecifier *customVersionSpecifier = [PSSpecifier preferenceSpecifierNamed:@"自定义iOS版本 (Custom Version)" target:self set:@selector(setCustomVersion:specifier:) get:@selector(readCustomVersion:) detail:nil cell:PSEditTextCell edit:nil];
-            [customVersionSpecifier setProperty:@YES forKey:@"enabled"];
-            [customVersionSpecifier setProperty:@"customIOSVersion" forKey:@"key"];
-            [customVersionSpecifier setProperty:@"16.6" forKey:@"default"];
-            [customVersionSpecifier setProperty:@"输入iOS版本 (如: 16.6)" forKey:@"placeholder"];
-            [specifiers addObject:customVersionSpecifier];
             /**************************** roothide specfic *********************************/
             
             
@@ -685,10 +684,10 @@
         if ([versionTest evaluateWithObject:version]) {
             [[DOPreferenceManager sharedManager] setPreferenceValue:version forKey:@"customIOSVersion"];
         } else {
-            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"版本格式错误" 
-                                                                           message:@"请输入有效的iOS版本号 (如: 16.6 或 15.7.1)" 
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Invalid Version Format" 
+                                                                           message:@"Please enter a valid iOS version number (e.g., 16.6 or 15.7.1)" 
                                                                     preferredStyle:UIAlertControllerStyleAlert];
-            [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil]];
+            [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
             [self presentViewController:alert animated:YES completion:nil];
             
             // Reset to previous value
